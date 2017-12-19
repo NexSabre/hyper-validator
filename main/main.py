@@ -1,25 +1,28 @@
 #!/usr/bin/env python
 from lxml import etree
-from io import StringIO
-import sys
 
 
-def parseXML(filename):
-    with open(filename, 'r') as xml_file:
-        return xml_file.read()
+class XMLValidator:
 
+    def __init__(self, filename):
+        self.filename = filename
 
-def validateXML(xml_file):
-    try:
-        doc = etree.parse(StringIO(xml_file))
-        print("XML file correct")
-    except IOError:
-        print("Invalid file")
+    def validate_xml(self):
+        with open(self.filename, 'r') as xml_file:
+            try:
+                etree.parse(xml_file)
 
-    # check that XML contains file
-    except etree.XMLSyntaxError as err:
-        print(err)
+            except IOError as ioe:
+                return False, ioe
 
+            except etree.XMLSyntaxError as err:
+                return False, err
+        return True, None
 
 if __name__ == "__main__":
-    print "Hello world"
+    import sys
+
+    v = XMLValidator(sys.argv[1])
+    for a in range(1, len(sys.argv)):
+        v.filename = sys.argv[a]
+        print v.validate_xml()
